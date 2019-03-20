@@ -54,8 +54,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let leftMouthFrownValue = faceAnchor.blendShapes[.mouthFrownLeft] as! CGFloat
         let rightMouthFrownValue = faceAnchor.blendShapes[.mouthFrownRight] as! CGFloat
         
-        let leftEyeSquintValue = faceAnchor.blendShapes[.eyeSquintLeft] as! CGFloat
-        let rightEyeSquintValue = faceAnchor.blendShapes[.eyeSquintRight] as! CGFloat
+//        let leftEyeSquintValue = faceAnchor.blendShapes[.eyeSquintLeft] as! CGFloat
+//        let rightEyeSquintValue = faceAnchor.blendShapes[.eyeSquintRight] as! CGFloat
         
         let cheekPuffValue = faceAnchor.blendShapes[.cheekPuff] as! CGFloat
         
@@ -66,8 +66,11 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         let jawOpenValue = faceAnchor.blendShapes[.jawOpen] as! CGFloat
         
         DispatchQueue.main.async {
-            self.handleSmile(leftValue: leftSmileValue, rightValue: rightSmileValue)
-            self.handleMouthFrown(leftValue: leftMouthFrownValue, rightValue: rightMouthFrownValue)
+            if leftSmileValue > 0.1 || rightSmileValue > 0.1 {
+                self.handleSmile(leftValue: leftSmileValue, rightValue: rightSmileValue, jawOpenValue: jawOpenValue)
+            } else {
+                self.handleMouthFrown(leftValue: leftMouthFrownValue, rightValue: rightMouthFrownValue)
+            }
             self.handleCheekPuff(cheekPuffValue)
             self.handleBrowInnerUp(browInnerUpValue)
             self.handleMouthPucker(mouthPuckerValue)
@@ -97,13 +100,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             ])
     }
     
-    private func handleSmile(leftValue: CGFloat, rightValue: CGFloat) {
+    private func handleSmile(leftValue: CGFloat, rightValue: CGFloat, jawOpenValue: CGFloat) {
         let smileValue = (leftValue + rightValue) / 2
         
         switch smileValue {
-        case _ where smileValue > 0.5:
+        case _ where smileValue > 0.3 && jawOpenValue > 0.05:
             smileLabel.text = "😁"
-        case _ where smileValue > 0.2:
+        case _ where smileValue > 0.1:
             smileLabel.text = "🙂"
         default:
             smileLabel.text = "😐"
@@ -116,9 +119,9 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         switch frownValue {
         case _ where frownValue > 0.9:
             smileLabel.text = "😧"
-        case _ where frownValue > 0.75:
+        case _ where frownValue > 0.8:
             smileLabel.text = "☹️"
-        case _ where frownValue > 0.5:
+        case _ where frownValue > 0.65:
             smileLabel.text = "🙁"
         default:
             smileLabel.text = "😐"
@@ -126,25 +129,25 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     }
     
     private func handleCheekPuff(_ cheekPuffValue: CGFloat) {
-        if cheekPuffValue > 0.2 {
+        if cheekPuffValue > 0.6 {
             smileLabel.text = "🐷"
         }
     }
     
     private func handleBrowInnerUp(_ browInnerUpValue: CGFloat) {
-        if browInnerUpValue > 0.2 {
+        if browInnerUpValue > 0.8 {
             smileLabel.text = "😟"
         }
     }
     
     private func handleMouthPucker(_ mouthPuckerValue: CGFloat) {
-        if mouthPuckerValue > 0.2 {
+        if mouthPuckerValue > 0.4 {
             smileLabel.text = "😚"
         }
     }
     
     private func handleJawOpen(_ jawOpenValue: CGFloat) {
-        if jawOpenValue > 0.2 {
+        if jawOpenValue > 0.4 {
             smileLabel.text = "😮"
         }
     }
